@@ -69,7 +69,7 @@ function! s:GetCommentChar(set)
   endif
 
   " check file extension against each entry in comment dictionary
-  for item in items(l:collection)
+  for item in items(collection)
     if index(item[1], extension) >= 0 || index(item[1], ftype) >= 0
       let comment = item[0]
       break
@@ -160,7 +160,7 @@ function! s:AutoBlockCommentMultiple() range
   let first_str = getline(a:firstline)
   let last_str = getline(a:lastline)
 
-  if s:IsCommented(comment_char, getline(a:firstline)) && len(matchstr(getline(a:lastline), reverse_comment_char.'$'))
+  if s:IsCommented(comment_char, first_str) && len(matchstr(last_str, reverse_comment_char.'$'))
     call s:UnCommentLine(a:firstline, comment_char, first_str)
     let new_lastline = substitute(last_str, ' '.reverse_comment_char.'$', '', "g")
     call setline(a:lastline, new_lastline)
