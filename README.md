@@ -40,8 +40,8 @@ the default `g:inline_comment_dict` is set to:
 
 ```Vim script
 let g:inline_comment_dict = {
-		\ '//': ["js", "ts", "cpp", "c", "dart"],
-		\ '#': ['py', 'sh'],
+		\ '//': ["js", "javascript", "ts", "typescript", "cpp", "c", "dart"],
+		\ '#': ['py', 'python', 'sh'],
 		\ '"': ['vim'],
 		\ }
 
@@ -71,8 +71,8 @@ the default `g:block_comment_dict` is set to:
 
 ```Vim script
 let g:block_comment_dict = {
-		\ '/*': ["js", "ts", "cpp", "c", "dart"],
-		\ '"""': ['py'],
+		\ '/*': ["js", "javascript", "ts", "typescript", "cpp", "c", "dart"],
+		\ '"""': ['py', 'python'],
 		\ }
 
 ```
@@ -86,9 +86,13 @@ let g:block_comment_dict = {
 ## Mapping
 The default mapping is done for the `Normal` and `Visual` modes.
 
-- to trigger `:AutoInlineComment` in both modes, press <kbd>Ctrl</kbd> + <kbd>/</kbd>.
+- to trigger `:AutoInlineCommentSingle` in 'Normal' mode, press <kbd>Ctrl</kbd> + <kbd>/</kbd>.
 
-- to trigger `:AutoBlockComment` in both modes, press <kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>A</kbd>.
+- to trigger `:AutoInlineCommentMultiple` in 'Visual' mode, press <kbd>Ctrl</kbd> + <kbd>/</kbd>.
+
+- to trigger `:AutoBlockCommentSingle` in 'Normal' mode, press <kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>A</kbd>.
+
+- to trigger `:AutoBlockCommentMultiple` in 'Visual' mode, press <kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>A</kbd>.
 
 - to **opt out** from the default mappings, set the following global variable to `0`:
 
