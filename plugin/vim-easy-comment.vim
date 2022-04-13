@@ -1,10 +1,10 @@
 "============================================================================
 "
 "File:        vim-easy-comment.vim
-"Author:      Alex Ray <sparrow@disroot.org> 
-"Version:     1.0.0 
+"Author:      Alex Ray <sparrow@disroot.org>
+"Version:     1.0.0
 "Description: Vim plugin for auto commenting/uncommenting multiple lines
-" 	      depending on the given file 
+" 	      depending on the given file
 " 	      Modified directly from https://github.com/KarimElghamry/vim-auto-comment/blob/master/plugin/vim-auto-comment.vim
 "License:     This program is free software. It comes without any warranty,
 "             to the extent permitted by applicable law. You can redistribute
@@ -19,19 +19,19 @@
 
 " dictionary for mapping inline comment tokens to the corresponding files
 let g:inline_comment_dict = {
-		\'//': ["js", "javascript", "ts", "typescript", "cpp", "c", "dart"],
-		\'#': ["py", "python", "sh", "zsh"],
-		\'"': ["vim"],
-		\}
+		\ '//': ["js", "javascript", "ts", "typescript", "cpp", "c", "dart"],
+		\ '#': ["py", "python", "sh", "zsh"],
+		\ '"': ["vim"],
+		\ }
 " variable for setting the default inlink comment token if the current file is
 " not found in the dictionary
 let g:default_inline_comment = '#'
 
 " dictionary for mapping block comment tokens to the corresponding files
 let g:block_comment_dict = {
-		\'/*': ["js", "javascript", "ts", "typescript", "cpp", "c", "dart"],
-		\'"""': ["py", "python"],
-		\}
+		\ '/*': ["js", "javascript", "ts", "typescript", "cpp", "c", "dart"],
+		\ '"""': ["py", "python"],
+		\ }
 
 " variable for setting the default block comment token if the current file is
 " not found in the dictionary
@@ -59,17 +59,17 @@ function! s:GetCommentChar(set)
   let ftype = &filetype
 
   if a:set == 'block'
-    let comment = g:default_block_comment 
+    let comment = g:default_block_comment
     let collection = g:block_comment_dict
   elseif a:set == 'inline'
-    let comment = g:default_inline_comment 
+    let comment = g:default_inline_comment
     let collection = g:inline_comment_dict
   else
     throw "invalid identifier for comment character collection"
   endif
 
-  " check file extension against each entry in comment dictionary    
-  for item in items(l:collection) 
+  " check file extension against each entry in comment dictionary
+  for item in items(l:collection)
     if index(item[1], extension) >= 0 || index(item[1], ftype) >= 0
       let comment = item[0]
       break
@@ -197,8 +197,8 @@ endfunction
 
 command! -nargs=0 AutoInlineCommentSingle call <SID>AutoInlineCommentSingle()
 command! -range AutoInlineCommentMultiple <line1>,<line2>call <SID>AutoInlineCommentMultiple()
-command! -nargs=0 AutoBlockCommentSingle call <SID>AutoBlockCommentSingle() 
-command! -range AutoBlockCommentMultiple <line1>,<line2>call <SID>AutoBlockCommentMultiple() 
+command! -nargs=0 AutoBlockCommentSingle call <SID>AutoBlockCommentSingle()
+command! -range AutoBlockCommentMultiple <line1>,<line2>call <SID>AutoBlockCommentMultiple()
 
 
 
