@@ -40,10 +40,10 @@ the default `g:inline_comment_dict` is set to:
 
 ```Vim script
 let g:inline_comment_dict = {
-		\'//': ["js", "ts", "cpp", "c", "dart"],
-		\'#': ['py', 'sh'],
-		\'"': ['vim'],
-		\}
+		\ '//': ["js", "ts", "cpp", "c", "dart"],
+		\ '#': ['py', 'sh'],
+		\ '"': ['vim'],
+		\ }
 
 ```
 
@@ -71,9 +71,9 @@ the default `g:block_comment_dict` is set to:
 
 ```Vim script
 let g:block_comment_dict = {
-		\'/*': ["js", "ts", "cpp", "c", "dart"],
-		\'"""': ['py'],
-		\}
+		\ '/*': ["js", "ts", "cpp", "c", "dart"],
+		\ '"""': ['py'],
+		\ }
 
 ```
 
@@ -100,10 +100,10 @@ and set your desired mappings as you wish. for example:
 ```Vim Script
 
 " Inline comment mapping
-vnoremap <silent><C-_> :AutoInlineComment<CR>
-nnoremap <silent><C-_> :AutoInlineComment<CR>
+vnoremap <silent><C-/> :AutoInlineCommentMultiple<CR>
+nnoremap <silent><C-/> :AutoInlineCommentSingle<CR>
 
 " Block comment mapping
-vnoremap <silent><C-S-a> :AutoBlockComment<CR>
-nnoremap <silent><C-S-a> :AutoBlockComment<CR>
+vnoremap <silent><C-S-?> :AutoBlockCommentMultiple<CR>
+nnoremap <silent><C-S-?> :AutoBlockCommentSingle<CR>
 ```
