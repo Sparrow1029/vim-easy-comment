@@ -84,6 +84,15 @@ function! s:GetIndent(str)
   return len(matchstr(a:str, '^\s*'))
 endfunction
 
+" Determine if line is empty/comprised of only whitespace
+function! s:IsEmpty(line)
+  if len(a:line) == 0 || len(matchstr('^\s*$', a:line))
+    return 1
+  else
+    return 0
+  endif
+endfunction
+
 " function to comment a single line (by line number)
 function! s:CommentLine(lnum, char, str, g_indent)
   let res = s:GetIndent(a:str)
@@ -121,7 +130,7 @@ function! s:AutoInlineCommentSingle()
   let line_no = line('.')
   let comment_char = s:GetCommentChar('inline')
   let indent = s:GetIndent(line)
-  if !len(line) || len(matchstr(line, '^\s*$'))
+  if s:IsEmpty(line)
     :
   elseif s:IsCommented(comment_char, line)
     call s:UnCommentLine(line_no, comment_char, line)
@@ -138,7 +147,7 @@ function! s:AutoInlineCommentMultiple() range
   let comment_char = s:GetCommentChar('inline')
   for i in range(a:firstline, a:lastline)
     let line = getline(i)
-    if !len(line) || len(matchstr(line, '^\s*$'))
+    if s:IsEmpty(line)
       continue
     " only UN-comment if first or last line has a comment character
     elseif s:IsCommented(comment_char, lines[0]) || s:IsCommented(comment_char, lines[-1])
@@ -166,9 +175,18 @@ function! s:AutoBlockCommentMultiple() range
     call setline(a:lastline, new_lastline)
   else
     let indent = s:GetIndent(first_str)
-    call s:CommentLine(a:firstline, comment_char, first_str, indent)
-    let new_lastline = substitute(last_str, '$', ' '.reverse_comment_char, "g")
-    call setline(a:lastline, new_lastline)
+    if s:IsEmpty(first_str)
+      call setline(a:firstline, repeat(' ', indent).comment_char)
+    else
+      call s:CommentLine(a:firstline, comment_char, first_str, indent)
+    endif
+
+    if s:IsEmpty(last_str)
+      call setline(a:lastline, repeat(' ', indent).reverse_comment_char)
+    else
+      let new_lastline = substitute(last_str, '$', ' '.reverse_comment_char, "g")
+      call setline(a:lastline, new_lastline)
+    endif
   endif
 
 endfunction
@@ -184,7 +202,7 @@ function! s:AutoBlockCommentSingle()
     let char = s:GetCommentChar('block')
     let rev_char = s:ReverseString(char)
     if len(matchstr(line, '^\s*'.char.'.*'.rev_char.'$'))
-      call setline(line_no, substitute(line, ' ?'.char.' ?', '', "g"))
+      call setline(line_no, substitute(line, '\('.char.'\s\|\s'.rev_char.'$\)', '', "g"))
     else
       call setline(line_no, repeat(" ", indent).char.' '.trim(line).' '.rev_char)
     endif
