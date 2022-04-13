@@ -90,9 +90,9 @@ The default mapping is done for the `Normal` and `Visual` modes.
 
 - to trigger `:AutoInlineCommentMultiple` in 'Visual' mode, press <kbd>Ctrl</kbd> + <kbd>/</kbd>.
 
-- to trigger `:AutoBlockCommentSingle` in 'Normal' mode, press <kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>A</kbd>.
+- to trigger `:AutoBlockCommentSingle` in 'Normal' mode, press <kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>/</kbd>.
 
-- to trigger `:AutoBlockCommentMultiple` in 'Visual' mode, press <kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>A</kbd>.
+- to trigger `:AutoBlockCommentMultiple` in 'Visual' mode, press <kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>/</kbd>.
 
 - to **opt out** from the default mappings, set the following global variable to `0`:
 
