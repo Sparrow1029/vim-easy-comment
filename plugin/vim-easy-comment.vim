@@ -15,33 +15,6 @@
 "============================================================================
 
 
-" ---------------- GLOBAL VARIABLES ------------------ "
-
-" dictionary for mapping inline comment tokens to the corresponding files
-let g:inline_comment_dict = {
-		\ '//': ["js", "javascript", "ts", "typescript", "cpp", "c", "dart"],
-		\ '#': ["py", "python", "sh", "zsh"],
-		\ '"': ["vim"],
-		\ }
-" variable for setting the default inlink comment token if the current file is
-" not found in the dictionary
-let g:default_inline_comment = '#'
-
-" dictionary for mapping block comment tokens to the corresponding files
-let g:block_comment_dict = {
-		\ '/*': ["js", "javascript", "ts", "typescript", "cpp", "c", "dart"],
-		\ '"""': ["py", "python"],
-		\ }
-
-" variable for setting the default block comment token if the current file is
-" not found in the dictionary
-let g:default_block_comment = '/*'
-
-" Escape these characters when substituting comment content in `setline`
-let s:esc_chrs = '^$.*?/\[]|&='
-
-
-
 " ---------------- COMMON FUNCTIONS ------------------ "
 
 " function to reverse a given string
@@ -99,7 +72,7 @@ function! s:CommentLine(lnum, char, str, g_indent)
   let l_indent = res - a:g_indent
   let before = repeat(" ", a:g_indent)
   let after = repeat(" ", l_indent)
-  let newline = substitute(a:str, '.*', before.a:char.' '.after.escape(trim(a:str), s:esc_chrs), "g")
+  let newline = substitute(a:str, '.*', before.escape(a:char, s:esc_chrs).' '.after.escape(trim(a:str), s:esc_chrs), "g")
   call setline(a:lnum, newline)
 endfunction
 
@@ -112,13 +85,84 @@ endfunction
 
 " determine if a line is already commented with comment character
 function! s:IsCommented(char, str)
-  if len(matchstr(a:str, '^\s*'.a:char))
+  if len(matchstr(a:str, '^\s*'.escape(a:char, s:esc_chrs)))
     return 1
   else
     return 0
   endif
 endfunction
 
+" Merge two dictionaries, also recursively combining nested keys.
+" Otherwise 'override' takes priority.
+"  function! s:DictMerge(defaults, override) abort
+"    let l:new = a:defaults
+"    for [l:k, l:v] in items(a:override)
+"      if type(get(l:new, l:k)) is v:t_dict && type(l:v) is v:t_dict
+"        call DictMerge(l:new[l:k], l:v)
+"      else
+"        let l:new[l:k] = l:v
+"      endif
+"    endfor
+"    return l:new
+"  endfunction
+
+" Override any filetypes with user-defined values from a dict where
+" type(value) == v:t_list by exploding and reconstructing the dictionary
+function! s:MergeCommentDict(defaults, user_specified) abort
+  let tmp = {}
+  for dct in [a:defaults, a:user_specified]
+    for [dk, dv] in items(dct)
+      for val in dv  " should be a list value
+        let tmp[val] = dk
+      endfor
+    endfor
+  endfor
+  let new = {}
+  for [k, v] in items(tmp)
+    if !has_key(new, v)
+      let new[v] = []
+    endif
+    call add(new[v], k)
+  endfor
+  return new
+endfunction
+
+
+" ---------------- GLOBAL VARIABLES ------------------ "
+
+" dictionary for mapping inline comment tokens to the corresponding files
+let s:default_inline_dict = {
+		\ '//': ["js", "javascript", "ts", "typescript", "cpp", "c", "dart"],
+		\ '#': ["py", "python", "sh", "zsh"],
+		\ '" ': ["vim"],
+		\ }
+if exists('g:inline_comment_dict')
+  let g:inline_comment_dict = s:MergeCommentDict(s:default_inline_dict, g:inline_comment_dict)
+else
+  let g:inline_comment_dict = s:default_inline_dict
+endif
+
+" variable for setting the default inlink comment token if the current file is
+" not found in the dictionary
+let g:default_inline_comment = '#'
+
+" dictionary for mapping block comment tokens to the corresponding files
+let s:default_block_dict = {
+		\ '/*': ["js", "javascript", "ts", "typescript", "cpp", "c", "dart"],
+		\ '"""': ["py", "python"],
+		\ }
+if exists('g:block_comment_dict')
+  let g:block_comment_dict = s:MergeCommentDict(s:default_block_dict, g:block_comment_dict)
+else
+  let g:block_comment_dict = s:default_block_dict
+endif
+
+" variable for setting the default block comment token if the current file is
+" not found in the dictionary
+let g:default_block_comment = '/*'
+
+" Escape these characters when substituting comment content in `setline`
+let s:esc_chrs = '^$.*?/\[]|&='
 
 
 " -------------- INLINE COMMENTING -----------------"
@@ -163,11 +207,17 @@ endfunction
 " ------------- BLOCK COMMENTING -------------- "
 
 " Determine whether or not to comment or uncomment a block of visually selected text
-function! s:AutoBlockCommentMultiple() range
+function! s:AutoBlockCommentMultiple() range abort
   let comment_char = s:GetCommentChar('block')
   let reverse_comment_char = s:ReverseString(comment_char)
   let first_str = getline(a:firstline)
   let last_str = getline(a:lastline)
+  let dif = a:lastline-a:firstline
+  if dif == 0
+    "  single line to comment out
+    call s:AutoBlockCommentSingle()
+    return 0
+  endif
 
   if s:IsCommented(comment_char, first_str) && len(matchstr(last_str, reverse_comment_char.'$'))
     call s:UnCommentLine(a:firstline, comment_char, first_str)
@@ -192,7 +242,7 @@ function! s:AutoBlockCommentMultiple() range
 endfunction
 
 " Comment or un-comment a single line of text using block comment method
-function! s:AutoBlockCommentSingle()
+function! s:AutoBlockCommentSingle() abort
   let line = getline('.')
   let line_no = line('.')
   if !len(line) || len(matchstr(line, '^\s*$'))
@@ -201,10 +251,12 @@ function! s:AutoBlockCommentSingle()
     let indent = s:GetIndent(line)
     let char = s:GetCommentChar('block')
     let rev_char = s:ReverseString(char)
-    if len(matchstr(line, '^\s*'.char.'.*'.rev_char.'$'))
+    let commented = matchstr(line, '^\s*'.escape(char, s:esc_chrs).'.*'.escape(rev_char, s:esc_chrs).'$')
+    if len(commented)
       call setline(line_no, substitute(line, '\('.char.'\s\|\s'.rev_char.'$\)', '', "g"))
     else
-      call setline(line_no, repeat(" ", indent).char.' '.trim(line).' '.rev_char)
+      let l:newline = repeat(' ', indent).char.' '.trim(line).' '.rev_char
+      call setline(line_no, l:newline)
     endif
   endif
 endfunction
