@@ -1,7 +1,7 @@
 # vim-easy-comment
 A simple vim plugin for auto commenting/uncommenting multiple lines depending on the given file. 
 
-<p align="center"><img src="https://media.giphy.com/media/3pIkKvNkV6gLkEbCt5/giphy.gif"></p>
+![asciicast](/demo.gif "vim-easy-comment demo asciinema")
 
 ## Install
 A plugin manager is recommended to easily install this plugin.
