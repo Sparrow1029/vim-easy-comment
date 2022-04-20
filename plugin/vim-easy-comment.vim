@@ -41,10 +41,10 @@ function! s:GetCommentChar(set)
     throw "invalid identifier for comment character collection"
   endif
 
-  " check file extension against each entry in comment dictionary
-  for item in items(collection)
-    if index(item[1], extension) >= 0 || index(item[1], ftype) >= 0
-      let comment = item[0]
+  " check filetype & extension against each entry in comment dictionary
+  for [cmt_char, ftypes] in items(collection)
+    if index(ftypes, extension) >= 0 || index(ftypes, ftype) >= 0
+      let comment = cmt_char
       break
     endif
   endfor
